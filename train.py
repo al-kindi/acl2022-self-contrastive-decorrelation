@@ -183,6 +183,18 @@ class ModelArguments:
                 "help": "Use our own, modified loss from VICReg or the default one"
                 },
             )
+    std_coeff: float = field(
+            default=1.0,
+            metadata={
+                "help": "Set the weight for the variance part of the loss"
+                },
+            )
+    cov_coeff: float = field(
+            default=1.0,
+            metadata={
+                "help": "Set the weight for the covariance part of the loss"
+                },
+            )
 
 
 

@@ -135,6 +135,9 @@ def cl_init(cls, config):
     cls.init_weights()
 
     cls.modified_loss = cls.model_args.modified_loss
+    cls.std_coeff = cls.model_args.std_coeff
+    cls.cov_coeff = cls.model_args.cov_coeff
+    cls.num_features = int(cls.config.projector.split('-')[-1])
 
 
 def normalize(vec):
@@ -276,7 +279,22 @@ def cl_forward(cls,
     
     # Calculate the modified loss if flag is set, otherwise the standard SCD loss
     if cls.modified_loss:
-        raise Exception("Modified loss not implemented yet!")
+        x = z1 - z1.mean(dim=0)
+        y = z2 - z2.mean(dim=0)
+
+        std_x = torch.sqrt(x.var(dim=0) + 0.0001)
+        std_y = torch.sqrt(y.var(dim=0) + 0.0001)
+        std_loss = torch.mean(F.relu(1 - std_x)) / 2 + torch.mean(F.relu(1 - std_y)) / 2
+
+        cov_x = (x.T @ x) / (batch_size - 1)
+        cov_y = (y.T @ y) / (batch_size - 1)
+
+        cov_loss = off_diagonal(cov_x).pow_(2).sum().div(cls.num_features) \
+                 + off_diagonal(cov_y).pow_(2).sum().div(cls.num_features)
+
+        modified_loss = cls.std_coeff * std_loss + cls.cov_coeff * cov_loss
+
+        loss = cls.config.task_alpha * self_contrast + (cls.config.task_beta * decorrelation + modified_loss) / 2
     else:
         loss = cls.config.task_alpha * self_contrast + cls.config.task_beta * decorrelation
 
