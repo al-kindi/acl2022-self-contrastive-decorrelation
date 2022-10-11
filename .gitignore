@@ -1,1 +1,4 @@
 data
+wandb/
+result/
+__pycache__
