@@ -134,6 +134,8 @@ def cl_init(cls, config):
 
     cls.init_weights()
 
+    cls.modified_loss = cls.model_args.modified_loss
+
 
 def normalize(vec):
     return vec.div(torch.norm(vec, dim=-1).unsqueeze(-1))
@@ -271,7 +273,12 @@ def cl_forward(cls,
     self_contrast = torch.diag(
         cls.sim(z1.unsqueeze(1), z2.unsqueeze(0))).mean()
 
-    loss = cls.config.task_alpha * self_contrast + cls.config.task_beta * decorrelation
+    
+    # Calculate the modified loss if flag is set, otherwise the standard SCD loss
+    if cls.modified_loss:
+        raise Exception("Modified loss not implemented yet!")
+    else:
+        loss = cls.config.task_alpha * self_contrast + cls.config.task_beta * decorrelation
 
     # SCD BEGIN: SimCSE legacy code
     

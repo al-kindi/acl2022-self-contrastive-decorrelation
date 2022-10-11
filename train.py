@@ -177,6 +177,12 @@ class ModelArguments:
             "help": "FC MLP architecture of projector"
         },
     )
+    modified_loss: bool = field(
+            default=False,
+            metadata={
+                "help": "Use our own, modified loss from VICReg or the default one"
+                },
+            )
 
 
 
