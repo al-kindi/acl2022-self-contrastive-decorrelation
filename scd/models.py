@@ -21,6 +21,7 @@ from transformers.file_utils import (
     replace_return_docstrings,
 )
 from transformers.modeling_outputs import SequenceClassifierOutput, BaseModelOutputWithPoolingAndCrossAttentions
+import wandb
 
 
 class MLPLayer(nn.Module):
@@ -285,6 +286,7 @@ def cl_forward(cls,
         std_x = torch.sqrt(x.var(dim=0) + 0.0001)
         std_y = torch.sqrt(y.var(dim=0) + 0.0001)
         std_loss = torch.mean(F.relu(1 - std_x)) / 2 + torch.mean(F.relu(1 - std_y)) / 2
+        wandb.log({'std_x': std_x, 'std_y': std_y, 'std_loss': std_loss})
 
         cov_x = (x.T @ x) / (batch_size - 1)
         cov_y = (y.T @ y) / (batch_size - 1)
@@ -293,10 +295,13 @@ def cl_forward(cls,
                  + off_diagonal(cov_y).pow_(2).sum().div(cls.num_features)
 
         modified_loss = cls.std_coeff * std_loss + cls.cov_coeff * cov_loss
+        wandb.log({'cov_x': cov_x, 'cov_y': cov_y, 'cov_loss': cov_loss, 'modified_loss': modified_loss})
 
         loss = cls.config.task_alpha * self_contrast + (cls.config.task_beta * decorrelation + modified_loss) / 2
     else:
         loss = cls.config.task_alpha * self_contrast + cls.config.task_beta * decorrelation
+    
+    wandb.log({'loss': loss})
 
     # SCD BEGIN: SimCSE legacy code
     
