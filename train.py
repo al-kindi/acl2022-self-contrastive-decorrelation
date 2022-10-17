@@ -16,6 +16,7 @@ import random
 import wandb
 from datasets import load_dataset
 
+sys.path.insert(0, './scd_transformers/src')
 import transformers
 from transformers import (
     CONFIG_MAPPING,

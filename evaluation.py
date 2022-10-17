@@ -12,6 +12,7 @@ PATH_TO_DATA = './SentEval/data'
 
 # Import SentEval
 sys.path.insert(0, PATH_TO_SENTEVAL)
+sys.path.insert(0, "./scd_transformers/src")
 import senteval
 from transformers import AutoModel, AutoTokenizer
 import transformers
