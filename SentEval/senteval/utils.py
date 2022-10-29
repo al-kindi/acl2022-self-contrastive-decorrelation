@@ -1,15 +1,3 @@
-#
-# SPDX-FileCopyrightText: 2017 Facebook, Inc.
-#
-# SPDX-License-Identifier: BSD-3-Clause
-#
-# Copyright (c) 2017-present, Facebook, Inc.
-# All rights reserved.
-#
-# This source code is licensed under the license found in the
-# LICENSE file in the root directory of this source tree.
-#
-
 from __future__ import absolute_import, division, unicode_literals
 
 import numpy as np
@@ -91,7 +79,7 @@ def get_optimizer(s):
         raise Exception('Unknown optimization method: "%s"' % method)
 
     # check that we give good parameters to the optimizer
-    expected_args = inspect.getargspec(optim_fn.__init__)[0]
+    expected_args = inspect.getfullargspec(optim_fn.__init__)[0]
     assert expected_args[:2] == ['self', 'params']
     if not all(k in expected_args[2:] for k in optim_params.keys()):
         raise Exception('Unexpected parameters: expected "%s", got "%s"' % (
